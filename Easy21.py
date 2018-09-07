@@ -41,7 +41,7 @@ class Easy21:
 				reward = -1
 				self._done = True
 		else:
-			print('ERROR!!!')  # that's terrible, ik, let's keep it for now
+			raise ValueError('Error: action should be either \'hit\' or \'stick\'')
 		return {'player': self._player, 'dealer': self._dealer}, reward, self._done
 
 	def reset(self):

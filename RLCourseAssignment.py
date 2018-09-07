@@ -17,8 +17,8 @@ def run_episode(env):
 		if done:
 			break
 	else:
-		print('Something went wrong and the loop did not break')
-		print(observation, reward, done)
+		msg = 'Something went wrong and the loop did not break, most recent observation: {}'.format(observation)
+		raise RuntimeWarning(msg)
 	return total_reward
 
 
