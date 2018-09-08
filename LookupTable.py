@@ -43,3 +43,14 @@ class LookupTable:
 			for j, dealer in enumerate(player):
 				print('dealer = {}: hit: {}, stick: {}'.format(j+1, dealer[0], dealer[1]))
 			print('\n')
+
+	def get_greedy_action(self, observation):
+		player, dealer = observation
+		q_hit = self.get_q(player, dealer, 'hit')
+		q_stick = self.get_q(player, dealer, 'stick')
+		if q_hit > q_stick:
+			return 'hit'
+		elif q_hit < q_stick:
+			return 'stick'
+		else:
+			return np.random.choice('hit', 'stick')
