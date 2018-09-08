@@ -2,16 +2,13 @@ from Easy21 import Easy21
 from random import choice
 import numpy as np
 
-ACTIONS = ('hit', 'stick')
-
 
 def run_episode(env):
 	total_reward = 0
-	global ACTIONS
-
+	actions = env.get_action_space()
 	observation = env.reset()
 	for _ in range(1000):
-		action = choice(ACTIONS)  # choosing a random action
+		action = choice(actions)  # choosing a random action
 		observation, reward, done = env.step(action)
 		total_reward += reward
 		if done:

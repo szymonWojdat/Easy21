@@ -49,3 +49,7 @@ class Easy21:
 		self._player = self._draw(black_only=True)
 		self._done = False
 		return {'player': self._player, 'dealer': self._dealer}
+
+	@staticmethod
+	def get_action_space():
+		return 'hit', 'stick'
