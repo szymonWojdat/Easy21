@@ -1,57 +1,97 @@
 from Easy21 import Easy21
 from LookupTable import LookupTable
 import numpy as np
+import pickle
 
 
 def eps_greedy(actions, greedy_action, epsilon):
 	return np.random.choice((greedy_action, np.random.choice(actions)), p=[1-epsilon, epsilon])
 
 
-def run_episode(env, table, n0):
+def learn_mc_episode(env, actions, s_a_values, s_a_reps, n0):
 	total_reward = 0
 	state_memory = []
-	actions = env.get_action_space()
 	observation = env.reset()
 	player, dealer = observation
 	for _ in range(1000):
-		# pick a random action
-		# action = np.random.choice(actions)
-
 		# pick an episilon-greedy action
-		greedy_action = table.get_greedy_action(player, dealer)
-		ns = table.get_n(player, dealer, 'hit') + table.get_n(player, dealer, 'stick')
+		greedy_action = s_a_values.get_greedy_action(player, dealer)
+		ns = s_a_reps.get(player, dealer, 'hit') + s_a_reps.get(player, dealer, 'stick')
 		epsilon = n0/(n0 + ns)
 		action = eps_greedy(actions, greedy_action, epsilon)
-		table.inc_n(player, dealer, action)  # update N
+		s_a_reps.increment(player, dealer, action)  # update N
 		state_memory.append(((player, dealer), action))
 
 		observation, reward, done = env.step(action)
 		total_reward += reward
 
-		if done:  # i think we shouldn't put the update in the terminal state, as there's no action there
+		if done:
 			for observation, action in state_memory:
 				player, dealer = observation
-				alpha = 1/table.get_n(player, dealer, action)
-				delta_q = alpha * (total_reward - table.get_q(player, dealer, action))
-				table.update_q(player, dealer, action, delta_q)  # update Q
+				alpha = 1/s_a_reps.get(player, dealer, action)
+				delta_q = alpha * (total_reward - s_a_values.get(player, dealer, action))
+				s_a_values.update(player, dealer, action, delta_q)  # update Q
 			break
 	else:
 		msg = 'Something went wrong and the loop did not break, most recent observation: {}'.format(observation)
 		raise RuntimeWarning(msg)
-	return total_reward, table
+	return s_a_values, s_a_reps
+
+
+def run_episode(env, actions, s_a_values=None):
+	total_reward = 0
+	observation = env.reset()
+	player, dealer = observation
+	random = s_a_values is None
+	for _ in range(1000):
+		if random:
+			# pick a random action
+			action = np.random.choice(actions)
+		else:
+			# pick a greedy action
+			action = s_a_values.get_greedy_action(player, dealer)
+
+		# take a step
+		observation, reward, done = env.step(action)
+		total_reward += reward
+
+		if done:
+			break
+	else:
+		msg = 'Something went wrong and the loop did not break, most recent observation: {}'.format(observation)
+		raise RuntimeWarning(msg)
+	return total_reward
 
 
 if __name__ == '__main__':
+	# parameters
+	num_learn_episodes = 10 ** 5
+	num_run_episodes = 10 ** 4
+	n_zero = 100
+
 	env1 = Easy21()
+	action_space = env1.get_action_space()
+	value_table = LookupTable(action_space)
+	reps_table = LookupTable(action_space)
 	total = 0
-	num_episodes = 10**4
-	t = LookupTable()
-	n_zero = 100  # this should be parametrized later
-	for i in range(num_episodes):
-		if i % 1000 == 0:
+	total_random = 0
+
+	# learning
+	for i in range(num_learn_episodes):
+		if i % 10000 == 0:
 			print(i)
-		r, t = run_episode(env1, t, n_zero)
-		total += r
-	# TODO - save the table (t) here or sth, we probably wanna see its final score (r), not total
-	# print('\nExpected reward = {}'.format(total/num_episodes))
-	t.pprint()
+		value_table, reps_table = learn_mc_episode(env1, action_space, value_table, reps_table, n_zero)
+
+	# playing
+	for _ in range(num_run_episodes):
+		total += run_episode(env1, action_space, value_table)
+
+	for _ in range(num_run_episodes):
+		total_random += run_episode(env1, action_space)
+
+	print('\nExpected reward in MC = {}'.format(total/num_run_episodes))
+	print('\nExpected reward in random = {}'.format(total_random/num_run_episodes))
+
+	# TODO - finish saving/loading
+	# file = open('monte_carlo_table', 'wb')
+	# pickle.dump(value_table, file)
