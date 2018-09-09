@@ -5,7 +5,7 @@ class LookupTable:
 	_tab = None
 
 	def __init__(self):
-		self._tab = np.array([[[[0, 0], [0, 0]]] * 21] * 21)
+		self._tab = np.array([[[[.0, .0], [.0, .0]]] * 21] * 21)
 
 	@staticmethod
 	def _get_action_index(action):
@@ -25,9 +25,9 @@ class LookupTable:
 		action_index = self._get_action_index(action)
 		return self._tab[player-1][dealer-1][action_index][1]
 
-	def set_q(self, player, dealer, action, value):
+	def update_q(self, player, dealer, action, value):
 		action_index = self._get_action_index(action)
-		self._tab[player - 1][dealer - 1][action_index][0] = value
+		self._tab[player - 1][dealer - 1][action_index][0] += value
 
 	def set_n(self, player, dealer, action, value):
 		action_index = self._get_action_index(action)
@@ -44,8 +44,7 @@ class LookupTable:
 				print('dealer = {}: hit: {}, stick: {}'.format(j+1, dealer[0], dealer[1]))
 			print('\n')
 
-	def get_greedy_action(self, observation):
-		player, dealer = observation
+	def get_greedy_action(self, player, dealer):
 		q_hit = self.get_q(player, dealer, 'hit')
 		q_stick = self.get_q(player, dealer, 'stick')
 		if q_hit > q_stick:
@@ -53,4 +52,4 @@ class LookupTable:
 		elif q_hit < q_stick:
 			return 'stick'
 		else:
-			return np.random.choice('hit', 'stick')
+			return np.random.choice(('hit', 'stick'))

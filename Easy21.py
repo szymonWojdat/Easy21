@@ -42,13 +42,15 @@ class Easy21:
 				self._done = True
 		else:
 			raise ValueError('Error: action should be either \'hit\' or \'stick\'')
-		return {'player': self._player, 'dealer': self._dealer}, reward, self._done
+		# return {'player': self._player, 'dealer': self._dealer}, reward, self._done
+		return (self._player, self._dealer), reward, self._done
 
 	def reset(self):
 		self._dealer = self._draw(black_only=True)
 		self._player = self._draw(black_only=True)
 		self._done = False
-		return {'player': self._player, 'dealer': self._dealer}
+		# return {'player': self._player, 'dealer': self._dealer}
+		return self._player, self._dealer
 
 	@staticmethod
 	def get_action_space():
