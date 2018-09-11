@@ -92,6 +92,6 @@ if __name__ == '__main__':
 	print('\nExpected reward in MC = {}'.format(total/num_run_episodes))
 	print('\nExpected reward in random = {}'.format(total_random/num_run_episodes))
 
-	# TODO - finish saving/loading
-	# file = open('monte_carlo_table', 'wb')
-	# pickle.dump(value_table, file)
+	file = open('dumps/monte_carlo_table.pkl', 'wb')
+	pickle.dump(value_table, file)
+	# to open, use: pickle.load(open('monte_carlo_table.pkl', 'rb'), encoding='UTF-8') or sys.stdout.encoding
