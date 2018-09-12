@@ -38,6 +38,48 @@ def learn_mc_episode(env, actions, s_a_values, s_a_reps, n0):
 	return s_a_values, s_a_reps
 
 
+def learn_sarsa_episode(env, actions, s_a_values, s_a_et, n0, lambda_value):
+	"""
+	Executes one episode of Sarsa(lambda) learning
+	:param env: environment to use
+	:param actions: action space of env
+	:param s_a_values: state-action value function (lookup table)
+	:param s_a_et: state-action eligibility traces (lookup table)
+	:param n0: influences epsilon in epsilon-greedy policy
+	:param lambda_value: lambda parameter value for Sarsa(lambda)
+	:return: updated state-action value function and eligibility traces
+	"""
+	total_reward = 0
+	state_memory = []
+	observation = env.reset()
+	player, dealer = observation
+	for _ in range(1000):
+		# pick an episilon-greedy action
+		greedy_action = s_a_values.get_greedy_action(player, dealer)
+		ns = s_a_et.get(player, dealer, 'hit') + s_a_et.get(player, dealer, 'stick')  # TODO - check if s_a_reps isn't necessary here
+		epsilon = n0 / (n0 + ns)
+		action = eps_greedy(actions, greedy_action, epsilon)
+		s_a_et.increment(player, dealer, action)  # update N
+		state_memory.append(((player, dealer), action))
+
+		observation, reward, done = env.step(action)
+		total_reward += reward
+
+		# TODO - change this, it's basically copied from MC
+		for observation, action in state_memory:
+			player, dealer = observation
+			alpha = 1 / s_a_et.get(player, dealer, action)
+			delta_q = alpha * (total_reward - s_a_values.get(player, dealer, action))
+			s_a_values.update(player, dealer, action, delta_q)  # update Q
+
+		if done:
+			break
+	else:
+		msg = 'Something went wrong and the loop did not break, most recent observation: {}'.format(observation)
+		raise RuntimeWarning(msg)
+	return s_a_values, s_a_et
+
+
 def run_episode(env, actions, s_a_values=None):
 	total_reward = 0
 	observation = env.reset()
