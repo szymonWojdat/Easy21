@@ -5,10 +5,26 @@ import pickle
 
 
 def eps_greedy(actions, greedy_action, epsilon):
+	"""
+	Picks an action according to an epsilon-greedy policy
+	:param actions: actions to pick form
+	:param greedy_action: the greedy action
+	:param epsilon: probability of picking a random action
+	:return: epsilon-greedy action
+	"""
 	return np.random.choice((greedy_action, np.random.choice(actions)), p=[1-epsilon, epsilon])
 
 
 def learn_mc_episode(env, actions, s_a_values, s_a_reps, n0):
+	"""
+	Executes one episode of Monte-Carlo learning (control)
+	:param env: environment to use
+	:param actions: action space of env
+	:param s_a_values: state-action value function (lookup table)
+	:param s_a_reps: state-action counts
+	:param n0: influences epsilon in epsilon-greedy policy
+	:return: updated state-action value function and state-action counts
+	"""
 	total_reward = 0
 	state_memory = []
 	observation = env.reset()
@@ -38,16 +54,17 @@ def learn_mc_episode(env, actions, s_a_values, s_a_reps, n0):
 	return s_a_values, s_a_reps
 
 
-def learn_sarsa_episode(env, actions, s_a_values, s_a_et, n0, lambda_value):
+def learn_sarsa_episode(env, actions, s_a_values, s_a_reps, s_a_et, n0, lambda_value):
 	"""
 	Executes one episode of Sarsa(lambda) learning
 	:param env: environment to use
 	:param actions: action space of env
 	:param s_a_values: state-action value function (lookup table)
-	:param s_a_et: state-action eligibility traces (lookup table)
+	:param s_a_reps: state-action counts
+	:param s_a_reps: state-action eligibility traces (lookup table)
 	:param n0: influences epsilon in epsilon-greedy policy
 	:param lambda_value: lambda parameter value for Sarsa(lambda)
-	:return: updated state-action value function and eligibility traces
+	:return: updated state-action value function, state-action counts and eligibility traces
 	"""
 	total_reward = 0
 	state_memory = []
@@ -56,10 +73,10 @@ def learn_sarsa_episode(env, actions, s_a_values, s_a_et, n0, lambda_value):
 	for _ in range(1000):
 		# pick an episilon-greedy action
 		greedy_action = s_a_values.get_greedy_action(player, dealer)
-		ns = s_a_et.get(player, dealer, 'hit') + s_a_et.get(player, dealer, 'stick')  # TODO - check if s_a_reps isn't necessary here
+		ns = s_a_reps.get(player, dealer, 'hit') + s_a_reps.get(player, dealer, 'stick')
 		epsilon = n0 / (n0 + ns)
 		action = eps_greedy(actions, greedy_action, epsilon)
-		s_a_et.increment(player, dealer, action)  # update N
+		s_a_reps.increment(player, dealer, action)  # update N
 		state_memory.append(((player, dealer), action))
 
 		observation, reward, done = env.step(action)
@@ -68,7 +85,7 @@ def learn_sarsa_episode(env, actions, s_a_values, s_a_et, n0, lambda_value):
 		# TODO - change this, it's basically copied from MC
 		for observation, action in state_memory:
 			player, dealer = observation
-			alpha = 1 / s_a_et.get(player, dealer, action)
+			alpha = 1 / s_a_reps.get(player, dealer, action)
 			delta_q = alpha * (total_reward - s_a_values.get(player, dealer, action))
 			s_a_values.update(player, dealer, action, delta_q)  # update Q
 
@@ -77,10 +94,17 @@ def learn_sarsa_episode(env, actions, s_a_values, s_a_et, n0, lambda_value):
 	else:
 		msg = 'Something went wrong and the loop did not break, most recent observation: {}'.format(observation)
 		raise RuntimeWarning(msg)
-	return s_a_values, s_a_et
+	return s_a_values, s_a_reps
 
 
 def run_episode(env, actions, s_a_values=None):
+	"""
+	Run an episode given state-action value function (lookup table).
+	:param env: environment to use
+	:param actions: action space
+	:param s_a_values: state-action value function (lookup table)
+	:return: total reward from this episode.
+	"""
 	total_reward = 0
 	observation = env.reset()
 	player, dealer = observation
