@@ -6,7 +6,7 @@ class LookupTable:
 	_action_space = None
 
 	def __init__(self, action_space):
-		self._tab = np.array([[[.0, .0]] * 21] * 21)
+		self._tab = np.array([[[.0, .0]] * 31] * 31)
 		self._action_space = action_space
 
 	def _get_action_index(self, action):
@@ -43,4 +43,5 @@ class LookupTable:
 		action_values = {}
 		for action in self._action_space:
 			action_values[action] = self.get(player, dealer, action)
-		return np.random.choice([k for k, v in action_values.items() if v == max(action_values.values())])
+		a = [k for k, v in action_values.items() if v == max(action_values.values())]  # TODO - this is sometimes empty - why? debug this!
+		return np.random.choice(a)

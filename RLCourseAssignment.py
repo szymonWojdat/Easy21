@@ -54,7 +54,7 @@ def learn_mc_episode(env, actions, s_a_values, s_a_reps, n0):
 	return s_a_values, s_a_reps
 
 
-def learn_sarsa_episode(env, actions, s_a_values, s_a_reps, n0, lambda_value, gamma):
+def learn_sarsa_episode(env, actions, s_a_values, s_a_reps, n0, lambda_value):
 	"""
 	Executes one episode of Sarsa(lambda) learning
 	:param env: environment to use
@@ -63,7 +63,6 @@ def learn_sarsa_episode(env, actions, s_a_values, s_a_reps, n0, lambda_value, ga
 	:param s_a_reps: state-action counts
 	:param n0: influences epsilon in epsilon-greedy policy
 	:param lambda_value: lambda parameter value for Sarsa(lambda)
-	:param gamma: discount factor
 	:return: updated state-action value function, state-action counts and eligibility traces
 	"""
 	total_reward = 0
@@ -92,15 +91,17 @@ def learn_sarsa_episode(env, actions, s_a_values, s_a_reps, n0, lambda_value, ga
 		action_prime = eps_greedy(actions, greedy_action, epsilon)
 		s_a_reps.increment(player_prime, dealer_prime, action)  # update N
 
-		delta = reward + gamma * s_a_values.get(player_prime, dealer_prime, action_prime) -\
+		# calculate the TD-error (no discounting!) and increment eligibility trace for current S-A pair
+		delta = reward + s_a_values.get(player_prime, dealer_prime, action_prime) -\
 			s_a_values.get(player, dealer, action)
+		s_a_et.increment(player, dealer, action)
 
 		for _observation, _action in state_memory:
 			_player, _dealer = _observation
 			alpha = 1 / s_a_reps.get(_player, _dealer, _action)
 			q_update = alpha * delta * s_a_et.get(_player, _dealer, _action)
 			s_a_values.update(_player, _dealer, _action, q_update)  # update Q
-			et_update = gamma * lambda_value * s_a_et.get(_player, _dealer, _action)
+			et_update = lambda_value * s_a_et.get(_player, _dealer, _action)
 			s_a_et.set(_player, _dealer, _action, et_update)
 
 		player, dealer, action = player_prime, dealer_prime, action_prime
@@ -151,30 +152,36 @@ if __name__ == '__main__':
 	num_learn_episodes = 10 ** 5
 	num_run_episodes = 10 ** 4
 	n_zero = 100
+	lambda_val = 0.5
 
 	env1 = Easy21()
 	action_space = env1.get_action_space()
-	value_table = LookupTable(action_space)
-	reps_table = LookupTable(action_space)
-	total = 0
-	total_random = 0
+	mc_value_table = LookupTable(action_space)
+	mc_reps_table = LookupTable(action_space)
+	sarsa_value_table = LookupTable(action_space)
+	sarsa_reps_table = LookupTable(action_space)
+	mc_total = 0
+	sarsa_total = 0
+	random_total = 0
 
 	# learning
 	for i in range(num_learn_episodes):
 		if i % 10000 == 0:
 			print(i)
-		value_table, reps_table = learn_mc_episode(env1, action_space, value_table, reps_table, n_zero)
+		mc_value_table, mc_reps_table = learn_mc_episode(env1, action_space, mc_value_table, mc_reps_table, n_zero)
+		sarsa_value_table, sarsa_reps_table = learn_sarsa_episode(
+			env1, action_space, sarsa_value_table, sarsa_reps_table, n_zero, lambda_val)
 
 	# playing
 	for _ in range(num_run_episodes):
-		total += run_episode(env1, action_space, value_table)
+		mc_total += run_episode(env1, action_space, mc_value_table)
+		sarsa_total += run_episode(env1, action_space, sarsa_value_table)
+		random_total += run_episode(env1, action_space)
 
-	for _ in range(num_run_episodes):
-		total_random += run_episode(env1, action_space)
+	print('\nExpected reward in MC = {}'.format(mc_total / num_run_episodes))
+	print('\nExpected reward in Sarsa = {}'.format(sarsa_total / num_run_episodes))
+	print('\nExpected reward in random = {}'.format(random_total / num_run_episodes))
 
-	print('\nExpected reward in MC = {}'.format(total/num_run_episodes))
-	print('\nExpected reward in random = {}'.format(total_random/num_run_episodes))
-
-	file = open('dumps/monte_carlo_table.pkl', 'wb')
-	pickle.dump(value_table, file)
+	# file = open('dumps/monte_carlo_table.pkl', 'wb')
+	# pickle.dump(mc_value_table, file)
 	# to open, use: pickle.load(open('monte_carlo_table.pkl', 'rb'), encoding='UTF-8') or sys.stdout.encoding
