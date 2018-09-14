@@ -43,5 +43,5 @@ class LookupTable:
 		action_values = {}
 		for action in self._action_space:
 			action_values[action] = self.get(player, dealer, action)
-		a = [k for k, v in action_values.items() if v == max(action_values.values())]  # TODO - this is sometimes empty - why? debug this!
+		a = [k for k, v in action_values.items() if v == max(action_values.values())]
 		return np.random.choice(a)

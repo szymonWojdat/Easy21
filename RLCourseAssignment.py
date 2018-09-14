@@ -89,7 +89,6 @@ def learn_sarsa_episode(env, actions, s_a_values, s_a_reps, n0, lambda_value):
 		ns = s_a_reps.get(player_prime, dealer_prime, 'hit') + s_a_reps.get(player, dealer, 'stick')
 		epsilon = n0 / (n0 + ns)
 		action_prime = eps_greedy(actions, greedy_action, epsilon)
-		s_a_reps.increment(player_prime, dealer_prime, action)  # update N
 
 		# calculate the TD-error (no discounting!) and increment eligibility trace for current S-A pair
 		delta = reward + s_a_values.get(player_prime, dealer_prime, action_prime) -\
@@ -106,6 +105,7 @@ def learn_sarsa_episode(env, actions, s_a_values, s_a_reps, n0, lambda_value):
 
 		player, dealer, action = player_prime, dealer_prime, action_prime
 		state_memory.append(((player, dealer), action))
+		s_a_reps.increment(player, dealer, action)
 
 		if done:
 			break
