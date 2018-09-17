@@ -13,9 +13,11 @@ def learn_mc_episode(env, actions, s_a_values, s_a_reps, n0):
 	"""
 	total_reward = 0
 	state_memory = []
+	done = False
 	observation = env.reset()
 	player, dealer = observation
-	for _ in range(1000):
+
+	while not done:
 		# pick an episilon-greedy action
 		greedy_action = s_a_values.get_greedy_action(player, dealer)
 		ns = s_a_reps.get(player, dealer, 'hit') + s_a_reps.get(player, dealer, 'stick')
@@ -27,14 +29,10 @@ def learn_mc_episode(env, actions, s_a_values, s_a_reps, n0):
 		observation, reward, done = env.step(action)
 		total_reward += reward
 
-		if done:
-			for observation, action in state_memory:
-				player, dealer = observation
-				alpha = 1/s_a_reps.get(player, dealer, action)
-				delta_q = alpha * (total_reward - s_a_values.get(player, dealer, action))
-				s_a_values.update(player, dealer, action, delta_q)  # update Q
-			break
-	else:
-		msg = 'Something went wrong and the loop did not break, most recent observation: {}'.format(observation)
-		raise RuntimeWarning(msg)
+	for observation, action in state_memory:
+		player, dealer = observation
+		alpha = 1/s_a_reps.get(player, dealer, action)
+		delta_q = alpha * (total_reward - s_a_values.get(player, dealer, action))
+		s_a_values.update(player, dealer, action, delta_q)  # update Q
+
 	return s_a_values, s_a_reps

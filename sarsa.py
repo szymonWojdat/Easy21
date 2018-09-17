@@ -18,6 +18,7 @@ def learn_sarsa_episode(env, actions, s_a_values, s_a_reps, n0, lambda_value):
 	observation = env.reset()
 	player, dealer = observation
 	s_a_et = LookupTable(actions)
+	done = False
 
 	# pick an episilon-greedy action
 	greedy_action = s_a_values.get_greedy_action(player, dealer)
@@ -27,7 +28,7 @@ def learn_sarsa_episode(env, actions, s_a_values, s_a_reps, n0, lambda_value):
 	s_a_reps.increment(player, dealer, action)  # update N
 	state_memory.append(((player, dealer), action))
 
-	for _ in range(1000):
+	while not done:
 		observation, reward, done = env.step(action)
 		player_prime, dealer_prime = observation
 		total_reward += reward
@@ -55,9 +56,4 @@ def learn_sarsa_episode(env, actions, s_a_values, s_a_reps, n0, lambda_value):
 		state_memory.append(((player, dealer), action))
 		s_a_reps.increment(player, dealer, action)
 
-		if done:
-			break
-	else:
-		msg = 'Something went wrong and the loop did not break, most recent observation: {}'.format(observation)
-		raise RuntimeWarning(msg)
 	return s_a_values, s_a_reps
