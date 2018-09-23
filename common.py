@@ -22,7 +22,7 @@ def run_episode(env, actions, s_a_values=None):
 	"""
 	total_reward = 0
 	observation = env.reset()
-	player, dealer = observation
+	# player, dealer = observation
 	random = s_a_values is None
 	for _ in range(1000):
 		if random:
@@ -30,7 +30,8 @@ def run_episode(env, actions, s_a_values=None):
 			action = np.random.choice(actions)
 		else:
 			# pick a greedy action
-			action = s_a_values.get_greedy_action(player, dealer)
+			# action = s_a_values.get_greedy_action(player, dealer)
+			action = s_a_values.get_greedy_action(observation)
 
 		# take a step
 		observation, reward, done = env.step(action)
