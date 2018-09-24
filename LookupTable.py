@@ -30,13 +30,6 @@ class LookupTable:
 		action_index = self._get_action_index(action)
 		self._tab[player - 1][dealer - 1][action_index] += 1
 
-	# def pprint(self):
-	# 	for i, player in enumerate(self._tab):
-	# 		print('player = {}:'.format(i+1))
-	# 		for j, dealer in enumerate(player):
-	# 			print('dealer = {}: hit: {}, stick: {}'.format(j+1, dealer[0], dealer[1]))
-	# 		print('\n')
-
 	def get_greedy_action(self, player, dealer):
 		# probably possible to do in one line but idc for now
 		action_values = {}
@@ -85,13 +78,6 @@ class LookupTableGeneric:
 		state_index = self._get_state_index(state)
 		action_index = self._get_action_index(action)
 		self._tab[state_index][action_index] += 1
-
-	# def pprint(self):
-	# 	for i, player in enumerate(self._tab):
-	# 		print('player = {}:'.format(i+1))
-	# 		for j, dealer in enumerate(player):
-	# 			print('dealer = {}: hit: {}, stick: {}'.format(j+1, dealer[0], dealer[1]))
-	# 		print('\n')
 
 	def get_greedy_action(self, state):
 		# probably possible to do in one line but idc for now

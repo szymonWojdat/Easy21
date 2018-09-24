@@ -6,6 +6,7 @@ def learn_sarsa_episode(env, states, actions, s_a_values, s_a_reps, n0, lambda_v
 	"""
 	Executes one episode of Sarsa(lambda) learning
 	:param env: environment to use
+	:param states: state space of env
 	:param actions: action space of env
 	:param s_a_values: state-action value function (lookup table)
 	:param s_a_reps: state-action counts
@@ -22,7 +23,9 @@ def learn_sarsa_episode(env, states, actions, s_a_values, s_a_reps, n0, lambda_v
 
 	# pick an episilon-greedy action
 	greedy_action = s_a_values.get_greedy_action(observation)
-	ns = s_a_reps.get(observation, 'hit') + s_a_reps.get(observation, 'stick')  # TODO - make this generic
+	ns = 0
+	for action in actions:
+		ns += s_a_reps.get(observation, action)
 	epsilon = n0 / (n0 + ns)
 	action = eps_greedy(actions, greedy_action, epsilon)
 	s_a_reps.increment(observation, action)  # update N
@@ -30,12 +33,13 @@ def learn_sarsa_episode(env, states, actions, s_a_values, s_a_reps, n0, lambda_v
 
 	while not done:
 		observation_prime, reward, done = env.step(action)
-		# player_prime, dealer_prime = observation
 		total_reward += reward
 
 		# pick an episilon-greedy action
 		greedy_action = s_a_values.get_greedy_action(observation_prime)
-		ns = s_a_reps.get(observation_prime, 'hit') + s_a_reps.get(observation, 'stick')  # TODO - make this generic
+		ns = 0
+		for action in actions:
+			ns += s_a_reps.get(observation, action)
 		epsilon = n0 / (n0 + ns)
 		action_prime = eps_greedy(actions, greedy_action, epsilon)
 

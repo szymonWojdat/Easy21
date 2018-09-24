@@ -73,7 +73,8 @@ def check_sarsa_discounts(num_learn_episodes, num_run_episodes, n_zero):
 	sarsa_reps_table = LookupTableGeneric(state_space, action_space)
 	sarsa_total = 0
 
-	for lambda_val in np.linspace(0, 1, 11):
+	for lambda_val in np.linspace(0, 1, 10):
+		lambda_val = np.round(lambda_val, 1)  # for some reason there numbers aren't always exactly round
 		for i in range(num_learn_episodes):
 			sarsa_value_table, sarsa_reps_table = learn_sarsa_episode(
 				env1, state_space, action_space, sarsa_value_table, sarsa_reps_table, n_zero, lambda_val)
@@ -87,9 +88,9 @@ def main():
 	n_learn_ep = 10 ** 5
 	n_run_ep = 10 ** 5
 	n0 = 100
-	lmbd = 0.5
+	lmbd = 1.0
 
-	# learn_mc_and_sarsa(n_learn_ep, n_run_ep, n0, lmbd)
+	learn_mc_and_sarsa(n_learn_ep, n_run_ep, n0, lmbd)
 	check_sarsa_discounts(n_learn_ep, n_run_ep, n0)
 
 

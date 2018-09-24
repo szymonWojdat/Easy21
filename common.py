@@ -21,16 +21,16 @@ def run_episode(env, actions, s_a_values=None):
 	:return: total reward from this episode.
 	"""
 	total_reward = 0
-	observation = env.reset()
-	# player, dealer = observation
+	done = False
 	random = s_a_values is None
-	for _ in range(1000):
+	observation = env.reset()
+
+	while not done:
 		if random:
 			# pick a random action
 			action = np.random.choice(actions)
 		else:
 			# pick a greedy action
-			# action = s_a_values.get_greedy_action(player, dealer)
 			action = s_a_values.get_greedy_action(observation)
 
 		# take a step
@@ -39,7 +39,5 @@ def run_episode(env, actions, s_a_values=None):
 
 		if done:
 			break
-	else:
-		msg = 'Something went wrong and the loop did not break, most recent observation: {}'.format(observation)
-		raise RuntimeWarning(msg)
+
 	return total_reward
