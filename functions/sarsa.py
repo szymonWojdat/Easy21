@@ -1,5 +1,5 @@
-from common import eps_greedy
-from LookupTable import LookupTableGeneric
+from functions.common import eps_greedy
+from classes.LookupTable import LookupTableGeneric
 
 
 def learn_sarsa_episode(env, states, actions, s_a_values, s_a_reps, n0, lambda_value):

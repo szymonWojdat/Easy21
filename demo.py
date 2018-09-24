@@ -1,9 +1,8 @@
-from Easy21 import Easy21
-from LookupTable import LookupTableGeneric
-import numpy as np
-from common import run_episode
-from monte_carlo import learn_mc_episode
-from sarsa import learn_sarsa_episode
+from classes.Easy21 import Easy21
+from classes.LookupTable import LookupTableGeneric
+from functions.monte_carlo import learn_mc_episode
+from functions.sarsa import learn_sarsa_episode
+from functions.common import run_episode
 import pickle
 
 
@@ -58,31 +57,6 @@ def learn_mc_and_sarsa(num_learn_episodes, num_run_episodes, n_zero, lambda_val,
 		# to open, use: pickle.load(open('monte_carlo_table.pkl', 'rb'), encoding='UTF-8') or sys.stdout.encoding
 
 
-def check_sarsa_discounts(num_learn_episodes, num_run_episodes, n_zero):
-	"""
-	Runs a number of Sarsa learning episodes, one batch for each value of lambda, prints average return per lambda value
-	:param num_learn_episodes: number of learning episodes
-	:param num_run_episodes: number of testing episodes
-	:param n_zero: N0 constant used for epsilon in an epsilon-greedy policy
-	:return: -
-	"""
-	env1 = Easy21()
-	state_space = env1.get_state_space()
-	action_space = env1.get_action_space()
-	sarsa_value_table = LookupTableGeneric(state_space, action_space)
-	sarsa_reps_table = LookupTableGeneric(state_space, action_space)
-	sarsa_total = 0
-
-	for lambda_val in np.linspace(0, 1, 10):
-		lambda_val = np.round(lambda_val, 1)  # for some reason there numbers aren't always exactly round
-		for i in range(num_learn_episodes):
-			sarsa_value_table, sarsa_reps_table = learn_sarsa_episode(
-				env1, state_space, action_space, sarsa_value_table, sarsa_reps_table, n_zero, lambda_val)
-		for _ in range(num_run_episodes):
-			sarsa_total += run_episode(env1, action_space, sarsa_value_table)
-		print('\nLambda = {}\tavg. score = {}'.format(lambda_val, sarsa_total / num_run_episodes))
-
-
 def main():
 	# parameters
 	n_learn_ep = 10 ** 5
@@ -91,7 +65,6 @@ def main():
 	lmbd = 1.0
 
 	learn_mc_and_sarsa(n_learn_ep, n_run_ep, n0, lmbd)
-	check_sarsa_discounts(n_learn_ep, n_run_ep, n0)
 
 
 if __name__ == '__main__':

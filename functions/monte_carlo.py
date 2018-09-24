@@ -1,4 +1,4 @@
-from common import eps_greedy
+from functions.common import eps_greedy
 
 
 def learn_mc_episode(env, actions, s_a_values, s_a_reps, n0):
