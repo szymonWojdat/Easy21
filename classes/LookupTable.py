@@ -86,3 +86,6 @@ class LookupTableGeneric:
 			action_values[action] = self.get(state, action)
 		a = [k for k, v in action_values.items() if v == max(action_values.values())]
 		return np.random.choice(a)
+
+	def get_space(self):
+		return self._state_space, self._action_space

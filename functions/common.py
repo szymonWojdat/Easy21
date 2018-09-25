@@ -1,4 +1,18 @@
 import numpy as np
+from classes.LookupTable import LookupTableGeneric
+
+
+def mse(t1: LookupTableGeneric, t2: LookupTableGeneric):
+	state_space, action_space = t1.get_space()
+	assert (state_space, action_space) == t2.get_space(), 'State/action spaces do not match'
+
+	square_sum = 0.0
+	n = 0
+	for state in state_space:
+		for action in action_space:
+			square_sum += (t1.get(state, action) - t2.get(state, action))**2
+			n += 1
+	return square_sum/n
 
 
 def eps_greedy(actions, greedy_action, epsilon):
