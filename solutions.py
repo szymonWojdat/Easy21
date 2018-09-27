@@ -5,6 +5,9 @@ from functions.monte_carlo import learn_mc_episode
 from functions.sarsa import learn_sarsa_episode
 from functions.common import mse
 import matplotlib.pyplot as plt
+import pickle
+import os
+import sys
 
 
 def run_monte_carlo(num_episodes, n_zero):
@@ -21,7 +24,11 @@ def run_monte_carlo(num_episodes, n_zero):
 
 	# TODO - add plotting here
 
-	# TODO - add save to pickle file - check what happens if 'dumps' dir doesn't exist
+	directory = 'dumps'
+	if not os.path.exists(directory):
+		os.makedirs(directory)
+	with open(directory + '/mc_table.pkl', 'wb') as file:
+		pickle.dump(mc_value_table, file)
 
 
 def run_sarsa(num_episodes, n_zero, mc_value_table):
@@ -73,9 +80,9 @@ def main():
 	n0 = 100
 
 	run_monte_carlo(n_learn_ep, n0)  # task 2 - Monte-Carlo control in Easy21
-	with open('dumps/mc.pkl') as f:
-		mc_val_tab = None  # TODO - read from pickle file f, add exception handling
-		run_sarsa(n_learn_ep, n0, mc_val_tab)  # task 3 - TD Learning in Easy21
+
+	mc_val_tab = pickle.load(open('dumps/mc_table.pkl', 'rb'), encoding=sys.stdout.encoding)
+	run_sarsa(n_learn_ep, n0, mc_val_tab)  # task 3 - TD Learning in Easy21
 
 
 if __name__ == '__main__':
