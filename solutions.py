@@ -92,7 +92,7 @@ def run_sarsa(num_episodes, n_zero, mc_value_table):
 	ax2.set(
 		xlabel='Lambda',
 		ylabel='MSE',
-		title='Sarsa(lambda) MSE for Different Values of Lambda, 1000 Episodes per Value'
+		title='Sarsa(lambda) MSE over Lambda, 1000 Episodes per Value'
 	)
 
 	plt.show()
