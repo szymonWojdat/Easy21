@@ -32,6 +32,7 @@ def run_monte_carlo(num_episodes, n_zero):
 
 
 def run_sarsa(num_episodes, n_zero, mc_value_table):
+	assert num_episodes > 1000, 'Number of episodes must be greater than 1000'
 	env1 = Easy21()
 	state_space = env1.get_state_space()
 	action_space = env1.get_action_space()
@@ -43,13 +44,15 @@ def run_sarsa(num_episodes, n_zero, mc_value_table):
 	sarsa_value_table_1 = LookupTableGeneric(state_space, action_space)
 	sarsa_reps_table_1 = LookupTableGeneric(state_space, action_space)
 
+	time_steps = []
 	mse_memo_0 = []
 	mse_memo_1 = []
 
 	for i in range(num_episodes):
 		if i % 1000 == 0 and not i == 0:
-			mse_memo_0.append((i, mse(mc_value_table, sarsa_value_table_0)))
-			mse_memo_1.append((i, mse(mc_value_table, sarsa_value_table_1)))
+			time_steps.append(i)
+			mse_memo_0.append(mse(mc_value_table, sarsa_value_table_0))
+			mse_memo_1.append(mse(mc_value_table, sarsa_value_table_1))
 
 		sarsa_value_table_0, sarsa_reps_table_0 = learn_sarsa_episode(
 			env1, state_space, action_space, sarsa_value_table_0, sarsa_reps_table_0, n_zero, lambda_value=0)
@@ -59,6 +62,7 @@ def run_sarsa(num_episodes, n_zero, mc_value_table):
 
 	# iterating over different lambda values - 0, 0.1, ..., 1
 
+	lambdas = []
 	mse_memo_lambda = []
 
 	for lambda_val in np.linspace(0, 1, 10):
@@ -68,10 +72,32 @@ def run_sarsa(num_episodes, n_zero, mc_value_table):
 		for _ in range(1000):  # hardcoded since that's the required numebr of learning episodes per lambda value
 			sarsa_value_table, sarsa_reps_table = learn_sarsa_episode(
 				env1, state_space, action_space, sarsa_value_table, sarsa_reps_table, n_zero, lambda_val)
-		mse_memo_lambda.append((lambda_val, mse(mc_value_table, sarsa_value_table_1)))
+		lambdas.append(lambda_val)
+		mse_memo_lambda.append(mse(mc_value_table, sarsa_value_table))
 
-	# TODO - add plotting here - MSE vs time - lamdba = 0 and = 1 on the same graph
-	# TODO - add plotting here - MSE vs lambda
+	# plotting
+
+	fig1, ax1 = plt.subplots()
+	ax1.plot(time_steps, mse_memo_0, label='lambda = 0')
+	ax1.plot(time_steps, mse_memo_1, label='lambda = 1')
+	ax1.set(
+		xlabel='Number of steps',
+		ylabel='MSE',
+		title='Sarsa(lambda) Mean-Squared Error Over Time'
+	)
+	ax1.legend(loc='best')
+
+	fig2, ax2 = plt.subplots()
+	ax2.plot(lambdas, mse_memo_lambda)
+	ax2.set(
+		xlabel='Lambda',
+		ylabel='MSE',
+		title='Sarsa(lambda) MSE for Different Values of Lambda, 1000 Episodes per Value'
+	)
+
+	plt.show()
+	fig1.savefig('graphs/sarsa_mse_over_time.png')
+	fig2.savefig('graphs/sarsa_mse_over_lambda.png')
 
 
 def main():
