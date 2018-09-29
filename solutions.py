@@ -8,9 +8,10 @@ import numpy as np
 import pickle
 import os
 import sys
+from tqdm import tqdm
 
 
-def run_monte_carlo(num_episodes, n_zero):
+def run_monte_carlo(num_episodes, n_zero, save_plots=True):
 	env1 = Easy21()
 	state_space = env1.get_state_space()
 	action_space = env1.get_action_space()
@@ -19,11 +20,11 @@ def run_monte_carlo(num_episodes, n_zero):
 	mc_reps_table = LookupTableGeneric(state_space, action_space)
 
 	# learning
-	for i in range(num_episodes):
+	for _ in tqdm(range(num_episodes), desc='Monte-Carlo Learning'):
 		mc_value_table, mc_reps_table = learn_mc_episode(env1, action_space, mc_value_table, mc_reps_table, n_zero)
 
 	# plotting
-	plotting.plot_value_for_player_dealer(mc_value_table, action_space)
+	plotting.plot_value_for_player_dealer(mc_value_table, action_space, save_plots)
 
 	# saving to pickle file
 	directory = 'dumps'
@@ -33,7 +34,7 @@ def run_monte_carlo(num_episodes, n_zero):
 		pickle.dump(mc_value_table, file)
 
 
-def run_sarsa(num_episodes, n_zero, mc_value_table):
+def run_sarsa(num_episodes, n_zero, mc_value_table, save_plots=True):
 	assert num_episodes > 1000, 'Number of episodes must be greater than 1000'
 	env1 = Easy21()
 	state_space = env1.get_state_space()
@@ -50,7 +51,7 @@ def run_sarsa(num_episodes, n_zero, mc_value_table):
 	mse_memo_0 = []
 	mse_memo_1 = []
 
-	for i in range(num_episodes):
+	for i in tqdm(range(num_episodes), desc='Sarsa(lambda) Learning, part 1/2'):
 		if i % 1000 == 0 and not i == 0:
 			time_steps.append(i)
 			mse_memo_0.append(mse(mc_value_table, sarsa_value_table_0))
@@ -67,7 +68,7 @@ def run_sarsa(num_episodes, n_zero, mc_value_table):
 	lambdas = []
 	mse_memo_lambda = []
 
-	for lambda_val in np.linspace(0, 1, 10):
+	for lambda_val in tqdm(np.linspace(0, 1, 10), desc='Sarsa(lambda) Learning, part 2/2'):
 		lambda_val = np.round(lambda_val, 1)  # for some reason these numbers aren't always exactly round
 		sarsa_value_table = LookupTableGeneric(state_space, action_space)
 		sarsa_reps_table = LookupTableGeneric(state_space, action_space)
@@ -78,17 +79,19 @@ def run_sarsa(num_episodes, n_zero, mc_value_table):
 		mse_memo_lambda.append(mse(mc_value_table, sarsa_value_table))
 
 	# plotting
-	plotting.plot_sarsa_mse_vs_nsteps(mse_memo_0, mse_memo_1, time_steps)
-	plotting.plot_sarsa_mse_vs_lambda(mse_memo_lambda, lambdas)
+	plotting.plot_sarsa_mse_vs_nsteps(mse_memo_0, mse_memo_1, time_steps, save_plots)
+	plotting.plot_sarsa_mse_vs_lambda(mse_memo_lambda, lambdas, save_plots)
 
 
 def main():
 	# parameters
-	n_learn_ep = 10 ** 5
+	n_learn_ep = 10 ** 4
 	n0 = 100
 
+	save_plots_to_file = False
+
 	# task 2 - Monte-Carlo control in Easy21
-	run_monte_carlo(n_learn_ep, n0)
+	run_monte_carlo(n_learn_ep, n0, save_plots=save_plots_to_file)
 
 	# task 3 - TD Learning in Easy21
 	mc_val_tab = pickle.load(open('dumps/mc_table.pkl', 'rb'), encoding=sys.stdout.encoding)

@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
-def plot_value_for_player_dealer(value_table, action_space):
+def plot_value_for_player_dealer(value_table, action_space, save=True):
 	player = []
 	dealer = []
 	value = []
@@ -25,12 +26,13 @@ def plot_value_for_player_dealer(value_table, action_space):
 		zlabel='value (Q)'
 	)
 	ax.view_init(30, 210)  # I was doing my best to make the angle similar to the one in Sutton/Barto's book :)
-
 	plt.show()
-	fig.savefig('graphs/mc_value_function.png')
+
+	if save:
+		fig.savefig('graphs/mc_value_function.png')
 
 
-def plot_sarsa_mse_vs_nsteps(mse_memo_0, mse_memo_1, time_steps):
+def plot_sarsa_mse_vs_nsteps(mse_memo_0, mse_memo_1, time_steps, save=True):
 	fig1, ax1 = plt.subplots()
 	ax1.plot(time_steps, mse_memo_0, label='lambda = 0')
 	ax1.plot(time_steps, mse_memo_1, label='lambda = 1')
@@ -40,12 +42,13 @@ def plot_sarsa_mse_vs_nsteps(mse_memo_0, mse_memo_1, time_steps):
 		title='Sarsa(lambda) Mean-Squared Error Over Time'
 	)
 	ax1.legend(loc='best')
-
 	plt.show()
-	fig1.savefig('graphs/sarsa_mse_over_time.png')
+
+	if save:
+		fig1.savefig('graphs/sarsa_mse_over_time.png')
 
 
-def plot_sarsa_mse_vs_lambda(mse_memo_lambda, lambdas):
+def plot_sarsa_mse_vs_lambda(mse_memo_lambda, lambdas, save=True):
 
 	fig2, ax2 = plt.subplots()
 	ax2.plot(lambdas, mse_memo_lambda)
@@ -54,6 +57,7 @@ def plot_sarsa_mse_vs_lambda(mse_memo_lambda, lambdas):
 		ylabel='MSE',
 		title='Sarsa(lambda) MSE over Lambda, 1000 Episodes per Value'
 	)
-
 	plt.show()
-	fig2.savefig('graphs/sarsa_mse_over_lambda.png')
+
+	if save:
+		fig2.savefig('graphs/sarsa_mse_over_lambda.png')
