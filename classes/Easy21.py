@@ -9,6 +9,7 @@ class Easy21:
 	_player = None
 
 	# player can technically reach a sum up to 31, not that the game is played then but we need it for the lookahead
+	# _state_space = tuple([(player, dealer) for player in range(-9, 32) for dealer in range(-9, 32)])
 	_state_space = tuple([(player, dealer) for player in range(-9, 32) for dealer in range(-9, 32)])
 	_action_space = ('hit', 'stick')
 
