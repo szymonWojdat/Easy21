@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import pickle
 import os
 import sys
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def run_monte_carlo(num_episodes, n_zero):
@@ -22,13 +23,40 @@ def run_monte_carlo(num_episodes, n_zero):
 	for i in range(num_episodes):
 		mc_value_table, mc_reps_table = learn_mc_episode(env1, action_space, mc_value_table, mc_reps_table, n_zero)
 
-	# TODO - add plotting here
+	# plotting
 
-	directory = 'dumps'
-	if not os.path.exists(directory):
-		os.makedirs(directory)
-	with open(directory + '/mc_table.pkl', 'wb') as file:
-		pickle.dump(mc_value_table, file)
+	player = []
+	dealer = []
+	value = []
+	for state in state_space:
+		action_values = []
+		for action in action_space:
+			action_values.append(mc_value_table.get(state, action))
+		player.append(state[0])
+		dealer.append(state[1])
+		value.append(max(action_values))
+
+	fig = plt.figure()
+	ax = fig.gca(projection='3d')
+	ax.plot_trisurf(player, dealer, value, linewidth=0.2, antialiased=True)
+	fig.tight_layout()
+	ax.set(
+		xlabel='player card',
+		ylabel='dealer card',
+		zlabel='value'
+		# title='Monte-Carlo State-Value Function'
+	)
+	ax.view_init(22.5, 225)
+
+	plt.show()
+
+	# saving to pickle file
+
+	# directory = 'dumps'
+	# if not os.path.exists(directory):
+	# 	os.makedirs(directory)
+	# with open(directory + '/mc_table.pkl', 'wb') as file:
+	# 	pickle.dump(mc_value_table, file)
 
 
 def run_sarsa(num_episodes, n_zero, mc_value_table):
@@ -60,7 +88,7 @@ def run_sarsa(num_episodes, n_zero, mc_value_table):
 		sarsa_value_table_1, sarsa_reps_table_1 = learn_sarsa_episode(
 			env1, state_space, action_space, sarsa_value_table_1, sarsa_reps_table_1, n_zero, lambda_value=1)
 
-	# iterating over different lambda values - 0, 0.1, ..., 1
+	# MSE over lambda
 
 	lambdas = []
 	mse_memo_lambda = []
@@ -102,13 +130,15 @@ def run_sarsa(num_episodes, n_zero, mc_value_table):
 
 def main():
 	# parameters
-	n_learn_ep = 10 ** 5
+	n_learn_ep = 10 ** 4
 	n0 = 100
 
-	run_monte_carlo(n_learn_ep, n0)  # task 2 - Monte-Carlo control in Easy21
+	# task 2 - Monte-Carlo control in Easy21
+	run_monte_carlo(n_learn_ep, n0)
 
-	mc_val_tab = pickle.load(open('dumps/mc_table.pkl', 'rb'), encoding=sys.stdout.encoding)
-	run_sarsa(n_learn_ep, n0, mc_val_tab)  # task 3 - TD Learning in Easy21
+	# task 3 - TD Learning in Easy21
+	# mc_val_tab = pickle.load(open('dumps/mc_table.pkl', 'rb'), encoding=sys.stdout.encoding)
+	# run_sarsa(n_learn_ep, n0, mc_val_tab)
 
 
 if __name__ == '__main__':
