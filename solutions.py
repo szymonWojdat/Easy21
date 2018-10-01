@@ -85,17 +85,18 @@ def run_sarsa(num_episodes, n_zero, mc_value_table, save_plots=True):
 
 def main():
 	# parameters
-	n_learn_ep = 10 ** 4
+	number_of_monte_carlo_episodes = 10 ** 7
+	number_of_sarsa_episodes = 10 ** 6
 	n0 = 100
 
-	save_plots_to_file = False
+	save_plots_to_file = True
 
 	# task 2 - Monte-Carlo control in Easy21
-	run_monte_carlo(n_learn_ep, n0, save_plots=save_plots_to_file)
+	run_monte_carlo(number_of_monte_carlo_episodes, n0, save_plots=save_plots_to_file)
 
 	# task 3 - TD Learning in Easy21
 	mc_val_tab = pickle.load(open('dumps/mc_table.pkl', 'rb'), encoding=sys.stdout.encoding)
-	run_sarsa(n_learn_ep, n0, mc_val_tab)
+	run_sarsa(number_of_sarsa_episodes, n0, mc_val_tab)
 
 
 if __name__ == '__main__':
