@@ -3,7 +3,9 @@ This repository contains solutions to the [programming assignment](http://www0.c
 
 The main task was to implement two reinforcement learning algorithms - Monte-Carlo Control and Sarsa(λ) (a verson of temporal difference learning, also known as TD learning) - and an environment - Easy21 - a simplified version of the card game Black Jack (or 21) and then apply those algorithms to solving the environment.
 
-All presented below solutions have been implemented using Python 3. All solutions can be executed one after another by running:
+All functions and classes in this project were designed with the intention of being as generic as possible. Full compatibility with OpenAI Gym - WIP.
+
+Presented below solutions have been implemented using Python 3. All solutions can be executed one after another by running:
 
 `python3 solutions.py`
 

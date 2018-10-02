@@ -1,7 +1,7 @@
 from classes.Easy21 import Easy21
 from classes.LookupTable import LookupTableGeneric
 from functions.monte_carlo import learn_mc_episode
-from functions.sarsa import learn_sarsa_episode
+from functions.sarsa import learn_sarsa_episode_table
 from functions.common import run_episode
 import pickle
 
@@ -35,7 +35,7 @@ def learn_mc_and_sarsa(num_learn_episodes, num_run_episodes, n_zero, lambda_val,
 		if i % 10000 == 0:
 			print(i)
 		mc_value_table, mc_reps_table = learn_mc_episode(env1, action_space, mc_value_table, mc_reps_table, n_zero)
-		sarsa_value_table, sarsa_reps_table = learn_sarsa_episode(
+		sarsa_value_table, sarsa_reps_table = learn_sarsa_episode_table(
 			env1, state_space, action_space, sarsa_value_table, sarsa_reps_table, n_zero, lambda_val)
 
 	# playing

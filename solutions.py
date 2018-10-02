@@ -1,7 +1,7 @@
 from classes.Easy21 import Easy21
 from classes.LookupTable import LookupTableGeneric
 from functions.monte_carlo import learn_mc_episode
-from functions.sarsa import learn_sarsa_episode
+from functions.sarsa import learn_sarsa_episode_table
 from functions.common import mse
 import functions.plotting as plotting
 import numpy as np
@@ -57,10 +57,10 @@ def run_sarsa(num_episodes, n_zero, mc_value_table, save_plots=True):
 			mse_memo_0.append(mse(mc_value_table, sarsa_value_table_0))
 			mse_memo_1.append(mse(mc_value_table, sarsa_value_table_1))
 
-		sarsa_value_table_0, sarsa_reps_table_0 = learn_sarsa_episode(
+		sarsa_value_table_0, sarsa_reps_table_0 = learn_sarsa_episode_table(
 			env1, state_space, action_space, sarsa_value_table_0, sarsa_reps_table_0, n_zero, lambda_value=0)
 
-		sarsa_value_table_1, sarsa_reps_table_1 = learn_sarsa_episode(
+		sarsa_value_table_1, sarsa_reps_table_1 = learn_sarsa_episode_table(
 			env1, state_space, action_space, sarsa_value_table_1, sarsa_reps_table_1, n_zero, lambda_value=1)
 
 	# MSE over lambda
@@ -73,7 +73,7 @@ def run_sarsa(num_episodes, n_zero, mc_value_table, save_plots=True):
 		sarsa_value_table = LookupTableGeneric(state_space, action_space)
 		sarsa_reps_table = LookupTableGeneric(state_space, action_space)
 		for _ in range(1000):  # hardcoded since that's the required numebr of learning episodes per lambda value
-			sarsa_value_table, sarsa_reps_table = learn_sarsa_episode(
+			sarsa_value_table, sarsa_reps_table = learn_sarsa_episode_table(
 				env1, state_space, action_space, sarsa_value_table, sarsa_reps_table, n_zero, lambda_val)
 		lambdas.append(lambda_val)
 		mse_memo_lambda.append(mse(mc_value_table, sarsa_value_table))
