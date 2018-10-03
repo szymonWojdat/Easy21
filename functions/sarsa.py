@@ -1,5 +1,6 @@
 from functions.common import eps_greedy
 from classes.LookupTable import LookupTableGeneric
+import numpy as np
 
 
 def learn_sarsa_episode_table(env, states, actions, s_a_values, s_a_reps, n0, lambda_value):
@@ -74,28 +75,35 @@ def learn_sarsa_episode_lfa(env, phi, actions, theta, alpha, epsilon, n0, lambda
 	"""
 	state_memory = []
 	observation = env.reset()
-	# s_a_et = LookupTableGeneric(states, actions)
 	done = False
 
-	# pick an episilon-greedy action
-	greedy_action = None  # TODO - implement getting the greedy action
-	action = eps_greedy(actions, greedy_action, epsilon)
+	def q(s, a, th):
+		return np.matmul(phi(s, a), th)
+
+	def get_eps_greedy_action(s, th):
+		action_values = {}
+		for act in actions:
+			action_values[act] = q(s, act, th)
+		best_actions = [k for k, v in action_values.items() if v == max(action_values.values())]
+		greedy_action = np.random.choice(best_actions)
+		return eps_greedy(actions, greedy_action, epsilon)
+
+	action = get_eps_greedy_action(observation, theta)
 	state_memory.append((observation, action))
 
 	while not done:
 		observation_prime, reward, done = env.step(action)
-
-		# pick an episilon-greedy action
-		greedy_action = None  # TODO - implement getting the greedy action
-		action_prime = eps_greedy(actions, greedy_action, epsilon)
+		action_prime = get_eps_greedy_action(observation_prime, theta)
 
 		# calculate the TD-error (no discounting!)
-		delta = reward + phi(observation_prime, action_prime) * theta - phi(observation, action) * theta
+		delta = alpha * (reward + q(observation_prime, action_prime, theta) - q(observation, action, theta))
+
+		# TODO - where do i put lambda???
 
 		for _observation, _action in state_memory:
 			# update q (effectively theta) in the direction of delta (TD error)
-			q_updated = phi(_observation, _action) * theta + delta
-			# theta = inversed phi(_observation, _action) * q_updated  # TODO - implement
+			q_updated = q(_observation, _action, theta) + delta
+			theta = np.matmul(np.linalg.inv(phi(_observation, action)), q_updated)
 
 		observation, action = observation_prime, action_prime
 		state_memory.append((observation, action))
