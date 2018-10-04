@@ -60,21 +60,22 @@ def learn_sarsa_episode_table(env, states, actions, s_a_values, s_a_reps, n0, la
 	return s_a_values, s_a_reps
 
 
-def learn_sarsa_episode_lfa(env, phi, actions, theta, alpha, epsilon, n0, lambda_value):
+def learn_sarsa_episode_lfa(env, states, actions, phi: function, theta: np.array, alpha, epsilon, lambda_value):
 	"""
 	Executes one episode of Sarsa(lambda) learning using linear function approximation
 	:param env: environment to use
-	:param phi: function that maps (s, a) pair to a binary feature vector
+	:param states: state space of env
 	:param actions: action space of env
+	:param phi: function that maps (s, a) pair to a binary feature vector
 	:param theta: vector of weights used in linear fn approx.
-	:param alpha: learning rate
+	:param alpha: learning rate/step size
 	:param epsilon: used in epsilon-greedy policy
-	:param n0: influences epsilon in epsilon-greedy policy
 	:param lambda_value: lambda parameter value for Sarsa(lambda)
 	:return: updated state-action value function, state-action counts and eligibility traces
 	"""
 	state_memory = []
 	observation = env.reset()
+	s_a_et = LookupTableGeneric(states, actions)
 	done = False
 
 	def q(s, a, th):
@@ -95,15 +96,16 @@ def learn_sarsa_episode_lfa(env, phi, actions, theta, alpha, epsilon, n0, lambda
 		observation_prime, reward, done = env.step(action)
 		action_prime = get_eps_greedy_action(observation_prime, theta)
 
-		# calculate the TD-error (no discounting!)
+		# calculate the TD-error (no discounting!) and increment eligibility trace for current S-A pair
 		delta = alpha * (reward + q(observation_prime, action_prime, theta) - q(observation, action, theta))
-
-		# TODO - where do i put lambda???
+		s_a_et.increment(observation, action)
 
 		for _observation, _action in state_memory:
 			# update q (effectively theta) in the direction of delta (TD error)
 			q_updated = q(_observation, _action, theta) + delta
 			theta = np.matmul(np.linalg.inv(phi(_observation, action)), q_updated)
+			et_update = lambda_value * s_a_et.get(_observation, _action)
+			s_a_et.set(_observation, _action, et_update)
 
 		observation, action = observation_prime, action_prime
 		state_memory.append((observation, action))
