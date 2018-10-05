@@ -2,7 +2,8 @@ import numpy as np
 from classes.LookupTable import LookupTableGeneric
 
 
-def mse(t1: LookupTableGeneric, t2: LookupTableGeneric):
+# probably a good idea to rewrite these two MSE methods as one some day...
+def mse_tables(t1: LookupTableGeneric, t2: LookupTableGeneric):
 	state_space, action_space = t1.get_space()
 	assert (state_space, action_space) == t2.get_space(), 'State/action spaces do not match'
 
@@ -13,6 +14,16 @@ def mse(t1: LookupTableGeneric, t2: LookupTableGeneric):
 			square_sum += (t1.get(state, action) - t2.get(state, action))**2
 			n += 1
 	return square_sum/n
+
+
+def mse_lfa_table(t, w, phi, states, actions):
+	square_sum = 0.0
+	n = 0
+	for state in states:
+		for action in actions:
+			square_sum += (t.get(state, action) - np.matmul(phi(state, action), w)) ** 2
+			n += 1
+	return square_sum / n
 
 
 def eps_greedy(actions, greedy_action, epsilon):

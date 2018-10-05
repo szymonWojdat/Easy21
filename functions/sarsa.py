@@ -60,7 +60,7 @@ def learn_sarsa_episode_table(env, states, actions, s_a_values, s_a_reps, n0, la
 	return s_a_values, s_a_reps
 
 
-def learn_sarsa_episode_lfa(env, states, actions, phi: function, theta: np.array, alpha, epsilon, lambda_value):
+def learn_sarsa_episode_lfa(env, states, actions, phi, theta: np.array, alpha, epsilon, lambda_value):
 	"""
 	Executes one episode of Sarsa(lambda) learning using linear function approximation
 	:param env: environment to use
@@ -103,6 +103,7 @@ def learn_sarsa_episode_lfa(env, states, actions, phi: function, theta: np.array
 		for _observation, _action in state_memory:
 			# update q (effectively theta) in the direction of delta (TD error)
 			q_updated = q(_observation, _action, theta) + delta
+			# TODO - i'm doing something really stupid here, REVISE
 			theta = np.matmul(np.linalg.inv(phi(_observation, action)), q_updated)
 			et_update = lambda_value * s_a_et.get(_observation, _action)
 			s_a_et.set(_observation, _action, et_update)
