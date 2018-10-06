@@ -97,14 +97,12 @@ def learn_sarsa_episode_lfa(env, states, actions, phi, theta: np.array, alpha, e
 		action_prime = get_eps_greedy_action(observation_prime, theta)
 
 		# calculate the TD-error (no discounting!) and increment eligibility trace for current S-A pair
-		delta = alpha * (reward + q(observation_prime, action_prime, theta) - q(observation, action, theta))
+		delta = reward + q(observation_prime, action_prime, theta) - q(observation, action, theta)
 		s_a_et.increment(observation, action)
 
 		for _observation, _action in state_memory:
-			# update q (effectively theta) in the direction of delta (TD error)
-			q_updated = q(_observation, _action, theta) + delta
-			# TODO - i'm doing something really stupid here, REVISE
-			theta = np.matmul(np.linalg.inv(phi(_observation, action)), q_updated)
+			gradient = alpha * delta * s_a_et.get(_observation, _action)
+			theta += gradient
 			et_update = lambda_value * s_a_et.get(_observation, _action)
 			s_a_et.set(_observation, _action, et_update)
 

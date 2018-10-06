@@ -157,11 +157,11 @@ def main():
 	save_plots_to_file = True
 
 	# task 2 - Monte-Carlo control in Easy21
-	run_monte_carlo(number_of_monte_carlo_episodes, n0, save_plots=save_plots_to_file)
+	# run_monte_carlo(number_of_monte_carlo_episodes, n0, save_plots=save_plots_to_file)
 
 	# task 3 - TD Learning in Easy21
 	mc_val_tab = pickle.load(open('dumps/mc_table.pkl', 'rb'), encoding=sys.stdout.encoding)
-	run_sarsa_table(number_of_sarsa_episodes, n0, mc_val_tab, save_plots_to_file)
+	# run_sarsa_table(number_of_sarsa_episodes, n0, mc_val_tab, save_plots_to_file)
 
 	# task 4 - Linear Function Approximation in Easy21
 	run_sarsa_lfa(number_of_sarsa_episodes, alpha_value, epsilon_value, mc_val_tab, save_plots_to_file)
