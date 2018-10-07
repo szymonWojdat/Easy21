@@ -1,4 +1,4 @@
-from functions.common import eps_greedy
+from functions.common import eps_greedy, eps_greedy_lfa, q
 from classes.LookupTable import LookupTableGeneric
 import numpy as np
 
@@ -75,36 +75,25 @@ def learn_sarsa_episode_lfa(env, states, actions, phi, theta: np.array, alpha, e
 	"""
 	state_memory = []
 	observation = env.reset()
-	s_a_et = LookupTableGeneric(states, actions)
+	s_a_et = np.zeros_like(theta.T)
 	done = False
 
-	def q(s, a, th):
-		return np.matmul(phi(s, a), th)
-
-	def get_eps_greedy_action(s, th):
-		action_values = {}
-		for act in actions:
-			action_values[act] = q(s, act, th)
-		best_actions = [k for k, v in action_values.items() if v == max(action_values.values())]
-		greedy_action = np.random.choice(best_actions)
-		return eps_greedy(actions, greedy_action, epsilon)
-
-	action = get_eps_greedy_action(observation, theta)
+	action = eps_greedy_lfa(actions, observation, theta, epsilon, phi)
 	state_memory.append((observation, action))
 
 	while not done:
 		observation_prime, reward, done = env.step(action)
-		action_prime = get_eps_greedy_action(observation_prime, theta)
+		action_prime = eps_greedy_lfa(actions, observation_prime, theta, epsilon, phi)
 
 		# calculate the TD-error (no discounting!) and increment eligibility trace for current S-A pair
-		delta = reward + q(observation_prime, action_prime, theta) - q(observation, action, theta)
-		s_a_et.increment(observation, action)
+		delta = reward + q(observation_prime, action_prime, theta, phi) - q(observation, action, theta, phi)
+		# s_a_et = s_a_et + phi(observation, action)
+		s_a_et = lambda_value * s_a_et + phi(observation, action)  # TODO - try removing once everything works
 
-		for _observation, _action in state_memory:
-			gradient = alpha * delta * s_a_et.get(_observation, _action)
-			theta += gradient
-			et_update = lambda_value * s_a_et.get(_observation, _action)
-			s_a_et.set(_observation, _action, et_update)
+		# no need to loop over all states/actions since we're calculating the gradient for all of them already (et vector)
+		gradient = alpha * delta * s_a_et
+		theta = theta + gradient.T
+		# s_a_et = lambda_value * s_a_et  # ET decay
 
 		observation, action = observation_prime, action_prime
 		state_memory.append((observation, action))

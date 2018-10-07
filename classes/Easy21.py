@@ -9,8 +9,8 @@ class Easy21:
 	_player = None
 
 	# player can technically reach a sum up to 31, not that the game is played then but we need it for the lookahead
-	# _state_space = tuple([(player, dealer) for player in range(-9, 32) for dealer in range(-9, 32)])
 	_state_space = tuple([(player, dealer) for player in range(-9, 32) for dealer in range(-9, 32)])
+	# _state_space = tuple([(player, dealer) for player in range(1, 21) for dealer in range(1, 10)])
 	_action_space = ('hit', 'stick')
 
 	@staticmethod
@@ -48,8 +48,8 @@ class Easy21:
 				reward = -1
 				self._done = True
 		state = (self._player, self._dealer)
-		assert state in self._state_space,\
-			'Error: state {} should be in state space: {}'.format(state, self._state_space)
+		# assert state in self._state_space,\
+		# 	'Error: state {} should be in state space: {}'.format(state, self._state_space)
 		return state, reward, self._done
 
 	def reset(self):

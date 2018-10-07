@@ -2,7 +2,7 @@ from classes.Easy21 import Easy21
 from classes.LookupTable import LookupTableGeneric
 from functions.monte_carlo import learn_mc_episode
 from functions.sarsa import learn_sarsa_episode_table, learn_sarsa_episode_lfa
-from functions.common import mse_tables, mse_lfa_table
+from functions.common import mse_tables, mse_lfa_table, phi_fn
 import functions.plotting as plotting
 import numpy as np
 import pickle
@@ -90,21 +90,7 @@ def run_sarsa_lfa(num_episodes, alpha, epsilon, mc_value_table, save_plots=True)
 	action_space = env1.get_action_space()
 	weights_shape = (36, 1)
 
-	def phi_fn(state, action):
-		player, dealer = state
-		phi = np.zeros(36)
-		player_values = (range(1, 7), range(4, 10), range(7, 13), range(10, 16), range(13, 19), range(16, 22))
-		dealer_values = (range(1, 5), range(4, 8), range(7, 11))
-		action_values = (['hit'], ['stick'])  # 1-el arrays as i want to use 'in' for consistency
 
-		count = 0
-		for p in player_values:
-			for d in dealer_values:
-				for a in action_values:
-					if player in p and dealer in d and action in a:
-						phi[count] = 1
-					count += 1
-		return phi
 
 	# MSE over time for lambda = 0 and lambda = 1
 
