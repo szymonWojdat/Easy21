@@ -91,12 +91,12 @@ def learn_sarsa_lfe(num_learn_episodes, num_run_episodes, lambda_val):
 
 def main():
 	# parameters
-	n_learn_ep = 10 ** 5
+	n_learn_ep = 10 ** 4
 	n_run_ep = 10 ** 5
 	n0 = 100
 	lmbd = 1.0
 
-	learn_mc_and_sarsa(n_learn_ep, n_run_ep, n0, lmbd)
+	# learn_mc_and_sarsa(n_learn_ep, n_run_ep, n0, lmbd)
 	learn_sarsa_lfe(n_learn_ep, n_run_ep, lmbd)
 
 

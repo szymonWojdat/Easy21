@@ -21,7 +21,6 @@ def mse_lfa_table(t, w, phi, states, actions):
 	n = 0
 	for state in states:
 		for action in actions:
-			# square_sum += (t.get(state, action) - np.matmul(phi(state, action), w)) ** 2
 			square_sum += (t.get(state, action) - np.dot(phi(state, action), w).flatten()[0]) ** 2
 			n += 1
 	return square_sum / n
