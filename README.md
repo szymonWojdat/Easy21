@@ -24,7 +24,18 @@ The graph below presents changes of mean-squared error for different values of l
 ![](https://raw.githubusercontent.com/szymonWojdat/Easy21/master/graphs/sarsa_mse_over_lambda.png)
 
 ## Linear Function Approximation in Easy21
-TBD
+The graph below presents changes of mean-squared error over time for two values of lambda: 0 and 1. A data point was captured each 1000 episodes, over the course of 100,000 episodes.
+![](https://raw.githubusercontent.com/szymonWojdat/Easy21/master/graphs/sarsa_mse_over_time_lfa.png)
+
+The graph below presents changes of mean-squared error for different values of lambda: 0, 0.1, 0.2, ..., 1. For each value, 1000 episodes have been evaluated.
+
+![](https://raw.githubusercontent.com/szymonWojdat/Easy21/master/graphs/sarsa_mse_over_lambda_lfa.png)
 
 ## Discussion
-TBD
+* What are the pros and cons of bootstrapping in Easy21?
+
+* Would you expect bootstrapping to help more in blackjack or Easy21? Why?
+
+* What are the pros and cons of function approximation in Easy21?
+
+* How would you modify the function approximator suggested in this section to get better results in Easy21?
