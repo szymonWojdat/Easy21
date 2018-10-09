@@ -39,7 +39,7 @@ The graph below presents changes of mean-squared error for different values of l
   
   Cons: 
     * The rewards happen only at the end of an episode, so there is a chance we can lower the value of a "good" state if it's              not terminal (as R = 0 for all non-terminal states).
-    * Increases the variance, as the environment isn't deterministic - sometimes we might get "unlucky" and the error (over- or undervalued state-action pair) keeps propagating on other state-action pairs (through R + Q(s', a')).
+    * Increases the bias, as the environment isn't deterministic - sometimes we might get "unlucky" and the error (over- or undervalued state-action pair) keeps propagating on other state-action pairs (through R + Q(s', a')).
 
 * Would you expect bootstrapping to help more in blackjack or Easy21? Why?
   In blackjack as there are effectively more states because we keep playing with the same pile of cards. So in case we don't apply bootstrapping, then we lose the information for all those non-terminal states - we'll never know what was the "state of the pile" two hits ago but it's important as, for example, if we're running low on 10s, then the odds of getting a 10 are low in that state, so hitting while sitting at 12 should be valued (at least slightly) higher than normally.
