@@ -54,4 +54,5 @@ The graph below presents changes of mean-squared error for different values of l
     * In table lookups we start at 0, which is neutral but this isn't always true in case of function approximation - after a few updates, we might receive a non-zero value for a previously unseen state-action pair.
 
 * How would you modify the function approximator suggested in this section to get better results in Easy21?
-  I would try a neural network: Input: player value, dealer value (state). Output: hit value, stick value. Make it stochastic, eg. P(hit) = Q(hit)/(Q(hit) + Q(stick)). Experiment with different numbers of hidden layers and hidden units.
+  
+  I would try a neural network: Input: player sum, dealer card (state). Output: hit value, stick value. Make it stochastic, eg. P(hit) = Q(hit)/(Q(hit) + Q(stick)). Experiment with different numbers of hidden layers and hidden units. Maybe even try two separate neural nets - one for hit and one for stick.
