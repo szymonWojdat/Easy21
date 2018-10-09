@@ -34,8 +34,24 @@ The graph below presents changes of mean-squared error for different values of l
 ## Discussion
 * What are the pros and cons of bootstrapping in Easy21?
 
+  Pros:
+    * Generally speeds up the learning process - more updates per episode.
+  
+  Cons: 
+    * The rewards happen only at the end of an episode, so there is a chance we can lower the value of a "good" state if it's              not terminal (as R = 0 for all non-terminal states).
+    * Increases the variance, as the environment isn't deterministic - sometimes we might get "unlucky" and the error (over- or undervalued state-action pair) keeps propagating on other state-action pairs (through R + Q(s', a')).
+
 * Would you expect bootstrapping to help more in blackjack or Easy21? Why?
+  In blackjack as there are effectively more states because we keep playing with the same pile of cards. So in case we don't apply bootstrapping, then we lose the information for all those non-terminal states - we'll never know what was the "state of the pile" two hits ago but it's important as, for example, if we're running low on 10s, then the odds of getting a 10 are low in that state, so hitting while sitting at 12 should be valued (at least slightly) higher than normally.
 
 * What are the pros and cons of function approximation in Easy21?
 
+  Pros:
+    * Takes less time to train as state-action values might be (and probably are) at least "partially" linearly dependent, so there is no need to run into every single state-action combination numerous times.
+  
+  Cons: 
+    * The value function might not be linear or in general - more complex than the approximator.
+    * In table lookups we start at 0, which is neutral but this isn't always true in case of function approximation - after a few updates, we might receive a non-zero value for a previously unseen state-action pair.
+
 * How would you modify the function approximator suggested in this section to get better results in Easy21?
+  I would try a neural network: Input: player value, dealer value (state). Output: hit value, stick value. Make it stochastic, eg. P(hit) = Q(hit)/(Q(hit) + Q(stick)). Experiment with different numbers of hidden layers and hidden units.
